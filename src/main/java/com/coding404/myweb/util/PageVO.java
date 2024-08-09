@@ -14,8 +14,8 @@ public class PageVO {
     // 화면에 그려질 pageNation을 계산하는 클래스
     private int start; // 시작 페이지 번호
     private int end; // 마지막 페이지 번호
-    private boolean prev; // 이전 버큰
-    private boolean next; // 다음 버큼
+    private boolean prev; // 이전 버튼
+    private boolean next; // 다음 버튼
 
     private int page; // 현재 조회하는 페이지 번호 <-- cri
     private int amount; // 현재 조회하는 데이터 개수 <-- cri

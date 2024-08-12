@@ -23,9 +23,9 @@ public class PageVO {
     private int realEnd; // 맨 마지막 페이지에 도달했을 때, 재계산이 들어가는 실제 끝번호
 
     private Criteria cri; // 페이징 기준
+    private List<Integer> pageList; // 페이지네이션 번호를 list로 생성
 
-    // 페이지 네이션 번호를 list로 생성
-    private List<Integer> pageList;
+    private int pageSize = 5; //페이지네이션 크기
 
     // 생성자 - 생성될 때 criteria객체, 전체 게시글 수를 받는다
     public PageVO(Criteria cri, int total) {
@@ -35,13 +35,14 @@ public class PageVO {
         this.cri = cri;
 
         // 끝 페이지 번호 계산
+        // 끝 페이지 = (페이지번호 / 페이지네이션 수) * 페이지네이션수
         // 1~10번 페이지 조회시 -> 10
         // 11~20번 페이지 조회시 -> 20
-        this.end = (int)Math.ceil(this.page / 10.0) * 10;
+        this.end = (int)Math.ceil(this.page / (double)this.pageSize) * this.pageSize;
 
         // 시작 페이지 번호 계산
         // 시작페이지 =  끝번호 - 페이지네이션 + 1
-        this.start = end -10 + 1;
+        this.start = end - this.pageSize + 1;
 
         // 실제 끝번호 재계산
         // 총 게시물 개수가 53개 -> 실제 끝번호 6, end 페이지 10
@@ -63,5 +64,5 @@ public class PageVO {
         this.next = this.realEnd > this.end;
 
         // 페이지네이션 생성
-        this.pageList = IntStream.rangeClosed(this.start, this.end).boxed().collect(Collectors.toList());    }
+        this.pageList = IntStream.rangeClosed(this.start, this.end).boxed().collect(Collectors.toList()); }
 }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public interface ProductMapper {
     public int productInsert(ProductVO vo);//등록
     public ArrayList<ProductVO> getList(@Param("userId") String userId, @Param("cri") Criteria cri); //목록 (매개변수가 2개 이상이면, @Param("변수이름")으로 이름을 붙여줘야 함)
+    public int getTotal(@Param("userId") String userId, @Param("cri") Criteria cri); // 전체 게시글 수
     public ProductVO getDetail(int prodId); //상세내역
     public int productUpdate(ProductVO vo); //수정
     public void productDelete(int prodId); //삭제

@@ -14,7 +14,7 @@ public class TestCode01 {
 
     @Test
     public void insertTest() {
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 300; i++) {
             ProductVO vo = ProductVO.builder()
                     .prodEnddate("2024-09-15")
                     .prodWriter("admin")

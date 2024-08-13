@@ -1,5 +1,6 @@
 package com.coding404.myweb.product;
 
+import com.coding404.myweb.command.CategoryVO;
 import com.coding404.myweb.command.ProductVO;
 import com.coding404.myweb.util.Criteria;
 import org.apache.ibatis.annotations.Mapper;
@@ -15,4 +16,7 @@ public interface ProductMapper {
     public ProductVO getDetail(int prodId); //상세내역
     public int productUpdate(ProductVO vo); //수정
     public void productDelete(int prodId); //삭제
+
+    public ArrayList<CategoryVO> getCategory(); // 카테고리 1단계
+    public ArrayList<CategoryVO> getCategoryChild(CategoryVO vo); // 카테고리 2,3단계
 }

@@ -18,13 +18,14 @@ $(document).ready(function() {
 		} else {
 			$(this).next("ul").slideDown();
 		}
+
 	});
 });
-// 파일 업로드
+// 파일업로드
 $(document).ready(function() {
 
-	var fileTarget = $('.filebox .upload-hidden'); // jquery는 다중 태그이벤트도 한 번에 처리
-	fileTarget.on('change', function(){ // change이벤트
+	var fileTarget = $('.filebox .upload-hidden'); //jquery는 다중 태그이벤트도 한번에 처리
+	fileTarget.on('change', function(){ //change이벤트
 	if(window.FileReader){ // modern browser 
 		var filename = $(this)[0].files[0].name; } 
 	else { // old IE 
@@ -37,7 +38,7 @@ $(document).ready(function() {
 		var parent = $(this).parent(); 
 		// parent.children('.upload-display').remove(); 
 		
-		if(window.FileReader){ // image 파일만
+		if(window.FileReader){ //image 파일만 
 			if (!$(this)[0].files[0].type.match(/image\//)) return; 
 
 			var reader = new FileReader(); 
@@ -90,29 +91,23 @@ $(document).ready(function() {
 /* 카테고리 */
 function getCategory_List(e) {
 	e.preventDefault(); //고유이벤트중지
-	if( e.target.tagName != 'A') return; // 태그검증
-	var obj = $(e.target).data("set"); // 데이터셋을 가져옴
+	if( e.target.tagName != 'A') return; //태그검증
+	var obj = $(e.target).data("set"); //데이터셋을 가져옴
 
 	// 토글색처리
 	$(e.currentTarget).find("a").removeClass("sub_menu_select");
 	$(e.target).addClass("sub_menu_select");
 
-	// 카테고리 key 값 생성
-	var categoryKey = obj.groupId + "-" + obj.categoryDetailLv;
-
-	// 생성한 key 값을 input 태그에 지정
-	$("input[name=prodCategory]").val(categoryKey);
-
 	// 태그처리
 	if(obj.categoryLv == 1 || obj.categoryLv == 2) {
 		console.log('1lv');
 		$().loading(); //로딩
-		$(e.currentTarget).category_remove(); // 이전 카테고리삭제
+		$(e.currentTarget).category_remove(); //이전 카테고리삭제
 
 		//////////////////////////////////////////////////
 		// 비동기콜백에서 category_create() 호출
 		// 비동기호출후 category_set() 호출
-		// category_create(); // 다음 카테고리생성
+		// category_create(); //다음 카테고리생성
 		$.ajax({
 			type : "get",
 			url : "/getCategoryChild/" + obj.groupId + "/"+ obj.categoryLv + "/" + obj.categoryDetailLv,
@@ -123,19 +118,21 @@ function getCategory_List(e) {
 				alert("카테고리 조회에 실패했습니다. 문의 1577-1577");
 			}
  		})
+		//////////////////////////////////////////////////
 	}
-	// 숙제
-	// 카테고리 key값은 그룹번호 + 카테고리ID로 만들어 준다
-	// 클릭한 대상의 이 값을 인풋태그[name=prodCategory]에 value값을 지정
-	
+	//숙제
+	//카테고리 key값은 그룹번호 + 카테고리ID 로 만들어 집니다.
+	//클릭한 대상의 이 값을, 인풋태그[name=prodCategory] 에 value에 값을 지정
+	$(e.target).category_set();
+
 }
 //카테고리세팅
 $.fn.category_set = function() {
-	var category_id = this.data("set").category_id;
-	var group_id = this.data("set").group_id;
-	$("input[name='prod_category']").val(group_id + category_id ); // name이 prod_category인 곳에 추가
+	var category_id = this.data("set").categoryId; // 클릭한 대상의 categoryId
+	var group_id = this.data("set").groupId; // 클릭한 대상의 groupId
+	$("input[name='prodCategory']").val(group_id + category_id ); // name이 prod_category인 곳에 추가
 }
-// 이전 카테고리 삭제JS
+// 이전 카테고리 삭제 JS
 $.fn.category_remove = function() {
 	while(this.next().length != 0) {
 		$(this).next().remove();
@@ -144,7 +141,7 @@ $.fn.category_remove = function() {
 // 다음 카테고리 생성 JS
 function category_create(data) {
 
-	// 예시 데이터
+	// 예시데이터
 //	var data = [
 //	 {category_lv: 2, group_id: 'B', category_detail_nm: '값선택', category_detail_parent_nm: '값선택'},
 //	 {category_lv: 2, group_id: 'B', category_detail_nm: '값선택', category_detail_parent_nm: '값선택'},

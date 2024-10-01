@@ -1,6 +1,8 @@
 package com.coding404.myweb.controller;
 
+import com.coding404.myweb.command.ProductUploadVO;
 import com.coding404.myweb.command.ProductVO;
+import com.coding404.myweb.command.UsersVO;
 import com.coding404.myweb.product.ProductService;
 import com.coding404.myweb.util.Criteria;
 import com.coding404.myweb.util.PageVO;
@@ -12,9 +14,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/product")
@@ -26,7 +33,7 @@ public class ProductController {
     private ProductService productService;
 
     // 목록
-//    @GetMapping("/productList") //  @GetMapping - 서버에서 데이터를 조회
+//    @GetMapping("/productList") // @GetMapping - 서버에서 데이터를 조회
 //    public String productList(Model model, Criteria cri) {
 //
 //        //현재 로그인되어 있는 사람 아이디가 admin이라고 가정하고
@@ -49,16 +56,19 @@ public class ProductController {
     // 4. 검색값의 유지 (criteria안에 있음)
     // 5. 페이지네이션을 누를 때, 검색 키워드를 같이 넘겨주어야 함
     // 6. 100개씩 보기 버튼 처리
-    @GetMapping("/productList")
-    public String productList(Model model, Criteria cri) {
 
-        //현재 로그인되어 있는 사람 아이디가 admin이라고 가정하고
-        String userId = "admin";
+    @GetMapping("/productList") // @GetMapping - 서버에서 데이터를 조회
+    public String productList(Model model, Criteria cri, HttpSession session) {
+
+        // 현재 로그인되어 있는 사람 아이디가 admin이라고 가정하고
+        UsersVO vo = (UsersVO)session.getAttribute("userVO");
+        String userId = vo.getId(); // String userId = "admin";
+
         ArrayList<ProductVO> list = productService.getList(userId, cri);
         model.addAttribute("list", list);
-        //페이지VO
-        int total = productService.getTotal(userId, cri); //전체게시글 수
-        PageVO pageVO = new PageVO(cri, total ); //페이지네이션
+        // 페이지VO
+        int total = productService.getTotal(userId, cri); // 전체게시글 수
+        PageVO pageVO = new PageVO(cri, total ); // 페이지네이션
         model.addAttribute("pageVO", pageVO);
 
         return "product/productList";
@@ -78,24 +88,39 @@ public class ProductController {
         ProductVO vo = productService.getDetail(prodId);
         model.addAttribute("vo", vo);
 
+        // 파일에 대한 select
+        ArrayList<ProductUploadVO> imgs = productService.getImgs(prodId);
+        model.addAttribute("imgs", imgs);
+
         return "product/productDetail";
     }
 
     // 등록요청
     @PostMapping("/registForm") // @PostMapping - 서버에 데이터를 생성하거나 전송할 때 사용
     public String registForm(ProductVO vo,
+                             @RequestParam("file") List<MultipartFile> files, //파일업로드
                              RedirectAttributes ra ) {
 
-        // 서버측에서 유효성 검사 진행가능
+        // 파일이 빈 데이터로 넘어오는 것을 제거
+        files = files.stream().filter( file -> file.isEmpty() == false).collect(Collectors.toList());
+        // 확장자 검사
+        for(MultipartFile f : files) {
+            String contentType = f.getContentType(); // 파일의 컨텐츠 타입을 얻음
+            if(contentType.contains("image") == false) {
+                ra.addFlashAttribute("msg", "png, jpg, jpeg 형식만 등록가능합니다");
+                return "redirect:/product/productList";
+            }
+        }
 
-        int result = productService.productInsert(vo);
+        // 서버측에서 유효성 검사 진행가능
+        int result = productService.productInsert(vo, files);
 
         if(result == 1) {
             ra.addFlashAttribute("msg", "정상 등록되었습니다");
         } else {
-            ra.addFlashAttribute("msg", "등록에 실패했습니다. 1577-1577 문의해 주세요.");
+            ra.addFlashAttribute("msg", "등록에 실패했습니다. 1577-1577에 문의해 주세요.");
         }
-        return "redirect:/product/productList"; // 다시 목록을 태워서 나감(데이터를 들고)
+        return "redirect:/product/productList"; //다시 목록을 태워서 나감(데이터를 들고)
     }
 
     // 상품 수정기능 - 반드시 필요한값은 PK
